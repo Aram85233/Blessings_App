@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Blessings.Controllers
 {
-   // [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase

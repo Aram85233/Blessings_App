@@ -1,5 +1,6 @@
 using Blessings;
 using Blessings.Services.Options;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -31,5 +32,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
+
+app.Services.CollectOrders(app.Configuration);
 
 app.Run();
