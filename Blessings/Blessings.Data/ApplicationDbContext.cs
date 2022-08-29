@@ -8,6 +8,7 @@ namespace Blessings.Data
         private readonly DbContextOptions _options;
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
+            
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -30,6 +31,10 @@ namespace Blessings.Data
                 .HasOne(bc => bc.Order)
                 .WithMany(c => c.EmployeeOrders)
                 .HasForeignKey(bc => bc.OrderId);
+
+            modelBuilder.Entity<Assortment>()
+               .HasOne(bc => bc.Set)
+               .WithMany(c => c.Assortments);
 
             base.OnModelCreating(modelBuilder);
         }

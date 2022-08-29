@@ -15,7 +15,10 @@ namespace Blessings.Services
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 var connectionString = databaseOptions.ConnectionString;
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString, builder =>
+                {
+                    builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                });
             });
 
             return services;

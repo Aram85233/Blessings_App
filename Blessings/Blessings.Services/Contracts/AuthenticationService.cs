@@ -38,10 +38,8 @@ namespace Blessings.Services.Contracts
         public Task<User> GetUserByEmailAndPasswordAsync(string email, string password) =>
               _applicationDbContext.Users.FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
 
-        public async Task<string> SignInAsync(string email, string password)
+        public async Task<string> SignInAsync(User user)
         {
-            var user = await GetUserByEmailAndPasswordAsync(email, password);
-
             var usersClaims = new[]
            {
                 new Claim(ClaimTypes.Email, user.Email),

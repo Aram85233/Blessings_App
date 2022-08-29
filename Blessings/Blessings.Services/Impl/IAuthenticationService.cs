@@ -8,7 +8,7 @@ namespace Blessings.Services.Impl
         Task<User> GetUserByIdAsync(int id);
         Task AddUserAsync(User user);
         Task<User> GetUserByEmailAndPasswordAsync(string email, string password);
-        Task<string> SignInAsync(string email, string password);
+        Task<string> SignInAsync(User user);
 
     }
 }

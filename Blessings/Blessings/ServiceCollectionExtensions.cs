@@ -40,6 +40,7 @@ namespace Blessings
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -113,21 +114,25 @@ namespace Blessings
             return services;
         }
 
-        public static IServiceProvider CollectOrders(this IServiceProvider serviceProvider, IConfiguration configuration)
+        public static IServiceProvider OrdersJob(this IServiceProvider serviceProvider, IConfiguration configuration)
         {
-            using (var scope = serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateAsyncScope())
             {
 
                 var orderOption = configuration.GetSection(OrderOptions.Section).Get<OrderOptions>();
 
-                //var backgroundJobClient = serviceProvider.GetRequiredService<IBackgroundJobClient>();
                 var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-                //backgroundJobClient.Enqueue(() => Console.WriteLine("Hello Hanfire job!"));
                 recurringJobManager.AddOrUpdate(
-                    "Orders",
-                    () => scope.ServiceProvider.GetService<IJobService>().GetOrders(),
-                    orderOption.CronExpression
+                    "GetOrders",
+                     () => scope.ServiceProvider.GetService<IJobService>().GetOrders(),
+                    Cron.MinuteInterval(1)
+                    );
+
+                recurringJobManager.AddOrUpdate(
+                    "ProcessOrders",
+                      () => scope.ServiceProvider.GetService<IJobService>().ProcessOrders(),
+                    Cron.MinuteInterval(1)
                     );
 
                 return serviceProvider;

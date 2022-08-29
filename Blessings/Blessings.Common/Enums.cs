@@ -4,7 +4,6 @@
     {
         Pending = 1,
         InProcess = 2,
-        Cancelled = 3,
-        Complated = 4
+        Complated = 3
     }
 }

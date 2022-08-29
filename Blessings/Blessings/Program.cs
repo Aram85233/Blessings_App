@@ -38,6 +38,6 @@ app.MapControllers();
 
 app.UseHangfireDashboard();
 
-app.Services.CollectOrders(app.Configuration);
+app.Services.OrdersJob(app.Configuration);
 
 app.Run();

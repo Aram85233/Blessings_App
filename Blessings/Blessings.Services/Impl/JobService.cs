@@ -1,4 +1,5 @@
-﻿using Blessings.Data.Entities;
+﻿using Blessings.Common;
+using Blessings.Data.Entities;
 using Blessings.Services.Contracts;
 using System.Text.Json;
 
@@ -18,18 +19,35 @@ namespace Blessings.Services.Impl
             var orders = _orderService.CollectOrders();
             foreach (var order in orders)
             {
-                var aaa = JsonSerializer.Deserialize<Order>(order.Text);
+                var orderFromQueue = JsonSerializer.Deserialize<Order>(order.Text);
+
+                if (await _orderService.GetOrderAsync(orderFromQueue.UserId, order.Id) != null)
+                    continue;
+
                 var result = new Order
                 {
                     CreatedDate = order.CreationDate,
                     OrderNumber = order.Id,
-                    Quantity = aaa.Quantity,
-                    SetId = aaa.SetId
+                    Quantity = orderFromQueue.Quantity,
+                    SetId = orderFromQueue.SetId,
+                    Status = (short)OrderStatus.Pending,
+                    UserId = orderFromQueue.UserId
 
                 };
                 ordersForInsert.Add(result);
-            }   
-            await _orderService.AddOrdersAsync(ordersForInsert);
+            }
+            if (ordersForInsert.Any())
+            {
+                await _orderService.AddOrdersAsync(ordersForInsert);
+            }
+        }
+
+        public async Task ProcessOrders()
+        {
+            await _orderService.FinishedEmployeeOrdersAsync();
+
+            await _orderService.StartEmployeeOrderAsync();
+
         }
     }
 }

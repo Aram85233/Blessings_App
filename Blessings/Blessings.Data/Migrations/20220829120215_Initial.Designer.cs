@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blessings.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220829083159_Initial")]
+    [Migration("20220829120215_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,9 @@ namespace Blessings.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsBusy")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Employees");
@@ -79,9 +82,6 @@ namespace Blessings.Data.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<short>("OrderStatus")
-                        .HasColumnType("smallint");
 
                     b.HasKey("EmployeeId", "OrderId");
 
@@ -101,6 +101,9 @@ namespace Blessings.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("FinishDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -111,7 +114,18 @@ namespace Blessings.Data.Migrations
                     b.Property<int>("SetId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("Status")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("SetId");
 
                     b.ToTable("Orders");
                 });
@@ -124,15 +138,12 @@ namespace Blessings.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("DurationInHours")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -169,11 +180,13 @@ namespace Blessings.Data.Migrations
 
             modelBuilder.Entity("Blessings.Data.Entities.Assortment", b =>
                 {
-                    b.HasOne("Blessings.Data.Entities.Set", null)
+                    b.HasOne("Blessings.Data.Entities.Set", "Set")
                         .WithMany("Assortments")
                         .HasForeignKey("SetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Set");
                 });
 
             modelBuilder.Entity("Blessings.Data.Entities.EmployeeOrder", b =>
@@ -193,6 +206,17 @@ namespace Blessings.Data.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Blessings.Data.Entities.Order", b =>
+                {
+                    b.HasOne("Blessings.Data.Entities.Set", "Set")
+                        .WithMany()
+                        .HasForeignKey("SetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Set");
                 });
 
             modelBuilder.Entity("Blessings.Data.Entities.Employee", b =>

@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
-using Blessings.Common.BackgroundWorker.Messaging;
-using Blessings.Common.Publisher;
-using Blessings.Common.Subscriber.Messaging;
 using Blessings.Data.Entities;
 using Blessings.Models;
 using Blessings.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using System.Security.Claims;
 
 namespace Blessings.Controllers
 {
@@ -18,34 +15,40 @@ namespace Blessings.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IMapper _mapper;
-        private readonly IMessagesRepository _messagesRepository;
         public OrderController(IOrderService orderService,
-                               IMapper mapper,
-                               IMessagesRepository messagesRepository)
+                               IMapper mapper)
         {
             _orderService = orderService;
             _mapper = mapper;
-            _messagesRepository = messagesRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(OrderModel orderModel)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderModel orderModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var order = _mapper.Map<Order>(orderModel);
-
+            order.UserId = int.Parse(HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             _orderService.PublishOrder(order);
 
             return Ok();
         }
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("order/{orderNumber}/status")]
+        public async Task<IActionResult> CheckOrderStatus(string orderNumber)
         {
-            var messages = _messagesRepository.GetMessages();
-            return Ok(messages);
+            var userId = int.Parse(HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var order = await _orderService.GetOrderAsync(userId, orderNumber);
+
+            if (order == null)
+            {
+                ModelState.AddModelError("error", "Order not found");
+                return BadRequest(ModelState);
+            }
+
+            return Ok(order);
         }
     }
 }

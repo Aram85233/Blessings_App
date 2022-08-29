@@ -27,7 +27,15 @@ namespace Blessings.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var token = await _authenticationService.SignInAsync(signInModel.Email, signInModel.Password);
+            var user = await _authenticationService.GetUserByEmailAndPasswordAsync(signInModel.Email, signInModel.Password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("error", "Email or password is wrong");
+                return BadRequest(ModelState);
+            }
+
+            var token = await _authenticationService.SignInAsync(user);
 
             return Ok(token);
         }
