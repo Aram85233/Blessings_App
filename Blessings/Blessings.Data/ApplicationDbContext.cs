@@ -39,9 +39,9 @@ namespace Blessings.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Persist Security Info=False;Integrated Security=true;Initial Catalog=BlessingsDb;Server=DESKTOP-MBFQM73\\SQLEXPRESS");
-        }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("Persist Security Info=False;Integrated Security=true;Initial Catalog=BlessingsDb;Server=DESKTOP-MBFQM73\\SQLEXPRESS");
+        //}
     }
 }
