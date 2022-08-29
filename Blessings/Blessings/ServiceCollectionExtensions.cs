@@ -41,6 +41,7 @@ namespace Blessings
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<ISetService, SetService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
