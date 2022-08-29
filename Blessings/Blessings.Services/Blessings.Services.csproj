@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Blessings.Common.BackgroundWorker\Blessings.Common.BackgroundWorker.csproj" />
+    <ProjectReference Include="..\Blessings.Common.Publisher\Blessings.Common.Publisher.csproj" />
+    <ProjectReference Include="..\Blessings.Common.Subscriber\Blessings.Common.Subscriber.csproj" />
     <ProjectReference Include="..\Blessings.Data\Blessings.Data.csproj" />
   </ItemGroup>
 

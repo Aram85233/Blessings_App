@@ -1,7 +1,10 @@
-﻿using Blessings.Common.BackgroundWorker.Messaging;
+﻿using AutoMapper;
+using Blessings.Common.BackgroundWorker.Messaging;
 using Blessings.Common.Publisher;
 using Blessings.Common.Subscriber.Messaging;
+using Blessings.Data.Entities;
 using Blessings.Models;
+using Blessings.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -13,29 +16,27 @@ namespace Blessings.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IRabbitPublisher _publisher;
+        private readonly IOrderService _orderService;
+        private readonly IMapper _mapper;
         private readonly IMessagesRepository _messagesRepository;
-        public OrderController(IRabbitPublisher publisher,
+        public OrderController(IOrderService orderService,
+                               IMapper mapper,
                                IMessagesRepository messagesRepository)
         {
-            _publisher = publisher;
+            _orderService = orderService;
+            _mapper = mapper;
             _messagesRepository = messagesRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(OrderModel orderDto)
+        public async Task<IActionResult> CreateOrder(OrderModel orderModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var message = new Message()
-            {
-                Id = Guid.NewGuid(),
-                CreationDate = DateTime.UtcNow,
-                Text = JsonSerializer.Serialize(orderDto)
-            };
+            var order = _mapper.Map<Order>(orderModel);
 
-            _publisher.Publish(message);
+            _orderService.PublishOrder(order);
 
             return Ok();
         }

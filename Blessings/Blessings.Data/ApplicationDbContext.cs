@@ -11,9 +11,26 @@ namespace Blessings.Data
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Assortment> Assortments { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<EmployeeOrder> EmployeeOrders { get; set; }
+        public DbSet<Set> Sets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<EmployeeOrder>()
+                .HasKey(bc => new { bc.EmployeeId, bc.OrderId });
+
+            modelBuilder.Entity<EmployeeOrder>()
+                .HasOne(bc => bc.Employee)
+                .WithMany(b => b.EmployeeOrders)
+                .HasForeignKey(bc => bc.EmployeeId);
+
+            modelBuilder.Entity<EmployeeOrder>()
+                .HasOne(bc => bc.Order)
+                .WithMany(c => c.EmployeeOrders)
+                .HasForeignKey(bc => bc.OrderId);
+
             base.OnModelCreating(modelBuilder);
         }
 

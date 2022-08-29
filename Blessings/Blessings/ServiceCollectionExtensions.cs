@@ -39,6 +39,7 @@ namespace Blessings
         public static IServiceCollection AddBlessingsServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -107,26 +108,31 @@ namespace Blessings
 
             services.AddHangfireServer();
 
-            services.AddSingleton<IOrderService, OrderService>();
+            services.AddScoped<IJobService, JobService>();
 
             return services;
         }
 
         public static IServiceProvider CollectOrders(this IServiceProvider serviceProvider, IConfiguration configuration)
         {
-            var orderOption = configuration.GetSection(OrderOptions.Section).Get<OrderOptions>();
+            using (var scope = serviceProvider.CreateScope())
+            {
 
-            //var backgroundJobClient = serviceProvider.GetRequiredService<IBackgroundJobClient>();
-            var recurringJobManager = serviceProvider.GetRequiredService<IRecurringJobManager>();
+                var orderOption = configuration.GetSection(OrderOptions.Section).Get<OrderOptions>();
 
-            //backgroundJobClient.Enqueue(() => Console.WriteLine("Hello Hanfire job!"));
-            recurringJobManager.AddOrUpdate(
-                "Orders",
-                () => serviceProvider.GetService<IOrderService>().GetOrders(),
-                orderOption.CronExpression
-                );
+                //var backgroundJobClient = serviceProvider.GetRequiredService<IBackgroundJobClient>();
+                var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-            return serviceProvider;
+                //backgroundJobClient.Enqueue(() => Console.WriteLine("Hello Hanfire job!"));
+                recurringJobManager.AddOrUpdate(
+                    "Orders",
+                    () => scope.ServiceProvider.GetService<IJobService>().GetOrders(),
+                    orderOption.CronExpression
+                    );
+
+                return serviceProvider;
+            }
+          
         }
     }
 }

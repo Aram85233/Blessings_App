@@ -1,4 +1,5 @@
 using Blessings;
+using Blessings.Common.AspNet.Extensions;
 using Blessings.Services.Options;
 using Hangfire;
 
@@ -21,6 +22,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews().AddControllersAsServices();
 
 var app = builder.Build();
+
+app.AddAuthenticationConfiguration();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

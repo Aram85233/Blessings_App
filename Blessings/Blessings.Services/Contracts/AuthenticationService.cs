@@ -31,7 +31,6 @@ namespace Blessings.Services.Contracts
 
         public async Task AddUserAsync(User user)
         {
-            user.RegistrationDate = DateTime.UtcNow;
             _applicationDbContext.Users.Add(user);
             await _applicationDbContext.SaveChangesAsync();
         }
